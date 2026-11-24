@@ -1,0 +1,8 @@
+const CACHE='first-line-71557f56';
+const FILES=["./", "css/app.css", "icons/icon-180.png", "icons/icon-192.png", "icons/icon-512.png", "icons/splash-1170x2532.png", "icons/splash-1179x2556.png", "icons/splash-1290x2796.png", "icons/splash-1668x2388.png", "icons/splash-750x1334.png", "index.html", "js/app.js", "js/export.js", "js/reader.js", "manifest.webmanifest", "vendor/LICENSE-pdf-lib.txt", "vendor/LICENSE-pdfjs.txt", "vendor/pdf-lib.min.js", "vendor/pdf.min.mjs", "vendor/pdf.worker.min.mjs", "vendor/standard_fonts/FoxitFixed.pfb", "vendor/standard_fonts/FoxitFixedBold.pfb", "vendor/standard_fonts/FoxitFixedBoldItalic.pfb", "vendor/standard_fonts/FoxitFixedItalic.pfb", "vendor/standard_fonts/FoxitSerif.pfb", "vendor/standard_fonts/FoxitSerifBold.pfb", "vendor/standard_fonts/LICENSE_FOXIT", "vendor/standard_fonts/LICENSE_LIBERATION", "vendor/standard_fonts/LiberationSans-Bold.ttf", "vendor/standard_fonts/LiberationSans-Regular.ttf"];
+self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(FILES)).then(()=>self.skipWaiting())));
+self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==CACHE).map(x=>caches.delete(x)))).then(()=>self.clients.claim())));
+self.addEventListener('fetch',e=>{
+  if(e.request.method!=='GET'||new URL(e.request.url).origin!==location.origin)return;
+  e.respondWith(caches.match(e.request,{ignoreSearch:true}).then(hit=>hit||fetch(e.request).then(res=>{if(res.ok){const c=res.clone();caches.open(CACHE).then(x=>x.put(e.request,c))}return res}).catch(()=>e.request.mode==='navigate'?caches.match('./index.html'):Response.error())));
+});
